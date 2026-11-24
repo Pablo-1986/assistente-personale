@@ -1,0 +1,58 @@
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+}
+
+// La compilazione su GitHub passa il numero di build: serve per gli aggiornamenti automatici
+def buildVersionCode = (project.findProperty("versionCode") ?: "1").toString().toInteger()
+def buildVersionName = (project.findProperty("versionName") ?: "1.0-prova").toString()
+
+android {
+    namespace 'com.assistente.personale'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.assistente.personale"
+        minSdk 26
+        targetSdk 34
+        versionCode buildVersionCode
+        versionName buildVersionName
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    kotlinOptions {
+        jvmTarget = '17'
+    }
+    buildFeatures {
+        buildConfig true
+        viewBinding true
+    }
+    packagingOptions {
+        resources {
+            excludes += ['META-INF/DEPENDENCIES', 'META-INF/LICENSE.md', 'META-INF/LICENSE.txt', 'META-INF/NOTICE.md', 'META-INF/NOTICE.txt', 'META-INF/AL2.0', 'META-INF/LGPL2.1']
+        }
+    }
+    lint {
+        abortOnError false
+    }
+}
+
+dependencies {
+    implementation 'androidx.core:core-ktx:1.13.1'
+    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'com.google.android.material:material:1.12.0'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.8.7'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1'
+    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
+    // Libreria per leggere e inviare email (IMAP/SMTP)
+    implementation 'com.sun.mail:android-mail:1.6.7'
+    implementation 'com.sun.mail:android-activation:1.6.7'
+}

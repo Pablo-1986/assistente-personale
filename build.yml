@@ -1,0 +1,50 @@
+name: Compila e pubblica
+
+# Ad ogni caricamento del codice compila l'app e pubblica una release con il nuovo APK
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Scarica il codice
+        uses: actions/checkout@v4
+
+      - name: Prepara Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Prepara Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.10.2'
+
+      - name: Compila l'app
+        run: |
+          VERSION_CODE=$(( ${{ github.run_number }} + 100 ))
+          echo "VERSION_CODE=$VERSION_CODE" >> "$GITHUB_ENV"
+          gradle assembleDebug -PversionCode=$VERSION_CODE -PversionName=1.${{ github.run_number }}
+
+      - name: Rinomina l'APK
+        run: |
+          mkdir -p apk
+          cp app/build/outputs/apk/debug/app-debug.apk apk/assistente-v1.${{ github.run_number }}.apk
+
+      - name: Pubblica la release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.${{ github.run_number }}
+          name: Aggiornamento 1.${{ github.run_number }}
+          body: |
+            versionCode: ${{ env.VERSION_CODE }}
+            Nuova versione dell'assistente: scarica il file APK qui sotto e installalo.
+          files: apk/assistente-v1.${{ github.run_number }}.apk
+          make_latest: true
